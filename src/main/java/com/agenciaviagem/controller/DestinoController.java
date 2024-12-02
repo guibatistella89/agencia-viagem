@@ -1,8 +1,9 @@
 package com.agenciaviagem.controller;
 
-import com.agenciaviagem.model.Destino;
-import com.agenciaviagem.model.DestinoListDTO;
+import com.agenciaviagem.dominio.dto.DestinoListDTO;
+import com.agenciaviagem.dominio.entity.Destino;
 import com.agenciaviagem.service.DestinoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
@@ -30,9 +31,13 @@ public class DestinoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Destino> buscarPorId(@PathVariable Long id) {
-        return destinoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Destino> destino = destinoService.buscarPorId(id);
+        if (destino.isPresent()) {
+            return new ResponseEntity<>(destino.get(), HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(new Destino(), HttpStatus.NO_CONTENT);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -44,7 +49,7 @@ public class DestinoController {
     @PatchMapping("/{id}/avaliar")
     public ResponseEntity<Void> avaliarDestino(@PathVariable Long id, @RequestParam int nota) {
         destinoService.avaliarDestino(id, nota);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
